@@ -9,22 +9,17 @@ export const tools = [
         parameters: {
 
             type: "object",
-
             properties: {
-
                 path: {
                     type: "string",
                     description: 'Project-relative directory path. Use "." for the project root.'
                 }
 
             },
-
             required: ["path"],
-
             additionalProperties: false
         }
     },
-
 
     {
         type: "function" as const,
@@ -35,22 +30,17 @@ export const tools = [
         parameters: {
 
             type: "object",
-
             properties: {
-
                 path: {
                     type: "string",
                     description: "Project-relative path of the file to read."
                 }
 
             },
-
             required: ["path"],
-
             additionalProperties: false
         }
     },
-
 
     {
         type: "function" as const,
@@ -61,25 +51,33 @@ export const tools = [
         parameters: {
 
             type: "object",
-
             properties: {
-
                 path: {
                     type: "string",
                     description: 'Directory to search. Use "." for the project root.'
                 },
-
                 query: {
                     type: "string",
                     description: "Text to search for."
                 }
 
             },
-
             required: [ "path", "query" ],
+            additionalProperties: false
+        }
+    },
 
+    {
+        type: "function" as const,
+        name: "get_git_diff",
+        description: "Returns the repository's current staged and unstaged Git changes.",
+        strict: true,
+
+        parameters: {
+            type: "object",
+            properties: {},
+            required: [],
             additionalProperties: false
         }
     }
-
 ];

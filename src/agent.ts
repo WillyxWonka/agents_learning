@@ -8,8 +8,6 @@ const client = new OpenAI();
 
 const MAX_STEPS = 8;
 
-
-
 /*
 At every cycle, our program sends the model the accumulated context and available actions. 
 The model performs another token-based inference and generates either a tool request or a final answer. 
@@ -46,9 +44,7 @@ export async function runAgent(
             `,
 
             input: goal,
-
             tools,
-
             tool_choice: "auto"
         });
 
@@ -75,14 +71,17 @@ export async function runAgent(
             try {
 
                 const result = executeTool( call.name, call.arguments );
-                console.log( "TOOL RESULT:" );
 
-                console.dir(
-                    result,
-                    {
-                        depth: null
-                    }
+                console.log(
+                    `TOOL RESULT: ${call.name} completed`
                 );
+                //console.log( "TOOL RESULT:" );
+                // console.dir(
+                //     result,
+                //     {
+                //         depth: null
+                //     }
+                // );
 
                 toolOutputs.push({
 
