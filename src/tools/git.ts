@@ -3,6 +3,12 @@ import { execFileSync } from "node:child_process"; //child_process lets Node lau
 
 const MAX_DIFF_SIZE = 50_000;
 
+/*  
+//git status --porclain returns "machine" code like this -- this is why the string parsing portion of the code looks for question marks ??
+    M src/index.ts
+    ?? src/newFile.ts
+    ?? src/tools/helper.ts 
+ */
 
 export function getGitDiff() {
 
