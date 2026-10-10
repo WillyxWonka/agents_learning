@@ -3,9 +3,11 @@ import path from "node:path";
 
 
 const PROJECT_ROOT = process.cwd();
+const REAL_PROJECT_ROOT = fs.realpathSync(PROJECT_ROOT);
 
 const MAX_FILE_SIZE = 50_000;
 const MAX_SEARCH_RESULTS = 20;
+const MAX_RANGE_LINES = 200;
 
 const IGNORED_NAMES = new Set([
     "node_modules",
@@ -30,21 +32,16 @@ const SEARCHABLE_EXTENSIONS = new Set([
 
 function resolveProjectPath(relativePath: string) {
 
-    const resolvedPath = path.resolve( PROJECT_ROOT, relativePath);
-    const relativeToRoot = path.relative(PROJECT_ROOT, resolvedPath);
+    const resolvedPath = path.resolve(PROJECT_ROOT, relativePath);
 
-    if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)){
-        throw new Error(
-            "Path is outside the project directory."
-        );
+    const realPath = fs.realpathSync(resolvedPath);
+    const realRelative = path.relative( REAL_PROJECT_ROOT, realPath );
+
+
+    if ( realRelative === ".." || realRelative.startsWith( ".." + path.sep ) || path.isAbsolute(realRelative) ) {
+        throw new Error( "Resolved path is outside the project directory." );
     }
-    return resolvedPath;
-}
-
-function isBlocked(relativePath: string) {
-
-    const fileName = path.basename(relativePath);
-    return IGNORED_NAMES.has(fileName);
+    return realPath;
 }
 
 export function listFiles(relativePath: string) {
@@ -58,25 +55,22 @@ export function listFiles(relativePath: string) {
             }
     );
 
-    return entries.filter( entry => !IGNORED_NAMES.has(entry.name))
-                  .map(entry => ({
-                        name: entry.name,
-                        type: entry.isDirectory() ? "directory" : "file"
-                    })
+    return entries
+                .filter( entry => !IGNORED_NAMES.has(entry.name))
+                .map(entry => ({
+                    name: entry.name,
+                    type: entry.isDirectory() ? "directory" : "file"
+                })
     );
 }
 
 export function readFile(relativePath: string) {
 
-    if (isBlocked(relativePath)) {
-        throw new Error(
-            `Access to ${relativePath} is blocked.`
-        );
-    }
-
     const fullPath = resolveProjectPath(relativePath);
-    const stats = fs.statSync(fullPath);
-
+    const stats = fs.lstatSync(fullPath);
+    if (stats.isSymbolicLink()) {
+        throw new Error( "Symbolic links are not allowed." );
+    }
     if (!stats.isFile()) {
         throw new Error(
             `${relativePath} is not a file.`
@@ -103,12 +97,17 @@ export function searchFiles(relativePath: string, query: string){
         text: string;
     }[] = [];
 
+    const searchQuery = query.toLowerCase();
 
     function searchDirectory(directoryPath: string) {
 
         const entries = fs.readdirSync(directoryPath, { withFileTypes: true });
 
         for (const entry of entries) {
+
+            if (entry.isSymbolicLink()) {
+                continue;
+            }
 
             if (results.length >= MAX_SEARCH_RESULTS){
                 return;
@@ -133,14 +132,17 @@ export function searchFiles(relativePath: string, query: string){
                 continue;
             }
 
-            const stats = fs.statSync(fullPath);
+            const stats = fs.lstatSync(fullPath);
+            if (stats.isSymbolicLink()) {
+                throw new Error( "Symbolic links are not allowed." );
+            }
 
             if (stats.size > MAX_FILE_SIZE){
                 continue;
             }
 
             const contents = fs.readFileSync( fullPath, "utf-8" );            
-            const lines = contents.split("\n");
+            const lines = contents.split(/\r?\n/);
 
             for ( let i = 0; i < lines.length; i++ ) {
 
@@ -150,7 +152,7 @@ export function searchFiles(relativePath: string, query: string){
                     continue; 
                 }
                 
-                if ( line.toLowerCase().includes(query.toLowerCase())) {
+                if ( line.toLowerCase().includes(searchQuery)) {
 
                     results.push({
                         path: path.relative( PROJECT_ROOT, fullPath ).replaceAll( "\\", "/" ),
@@ -170,4 +172,51 @@ export function searchFiles(relativePath: string, query: string){
     searchDirectory(startPath);
 
     return results;
+}
+
+
+
+export function readFileRange( relativePath: string, startLine: number, endLine: number ) {
+    const fullPath = resolveProjectPath(relativePath);
+    const stats = fs.lstatSync(fullPath); //asks the filesystem: Give me metadata about this path.returns an fs.Stats object. That object contains information like: file size whether it's a file whether it's a directory timestamps other filesystem metadata
+
+    if (stats.isSymbolicLink()) {
+        throw new Error( "Symbolic links are not allowed." );
+    }
+    if (!stats.isFile()) {
+        throw new Error( `${relativePath} is not a file.` );
+    }
+    if (stats.size > MAX_FILE_SIZE) { 
+        throw new Error( "File is too large to read." ); 
+    }
+
+    const contents = fs.readFileSync( fullPath, "utf-8" );
+
+    const lines = contents.split(/\r?\n/); // standard and effective for splitting text into lines,
+
+    if ( !Number.isInteger(startLine) || !Number.isInteger(endLine) ) {
+        throw new Error( "Line numbers must be integers." );
+    }
+
+    if ( startLine < 1 || endLine < startLine ) {
+        throw new Error( "Invalid line range." );
+    }
+
+
+    if ( endLine - startLine + 1 > MAX_RANGE_LINES ) {
+        throw new Error( `Cannot read more than ${MAX_RANGE_LINES} lines at once.` );
+    }
+
+    const safeStart = Math.max( 1, startLine );
+    const safeEnd = Math.min( endLine, lines.length );
+
+    if (safeStart > safeEnd) {
+        throw new Error( "Invalid line range." );
+    }
+
+
+    return lines
+        .slice( safeStart - 1, safeEnd )
+        .map( (line, index) => `${safeStart + index}: ${line}` ) // Maps the lines to look like --> 20: function signIn() {}.... with the line numbers for effinciency
+        .join("\n");
 }

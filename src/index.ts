@@ -6,6 +6,7 @@ import { runAgent } from "./agent.js";
 async function main() {
 
     const answer =
+        /*expects a "goal" for the string */
         await runAgent(`
             Review my current Git changes.
 
