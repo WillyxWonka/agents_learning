@@ -71,6 +71,71 @@ Current development focuses on improving reliability, expanding repository analy
 
 
 
+## Installation & Setup
+
+### Prerequisites
+- Node.js and npm
+- Git
+- OpenAI API key
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/WillyxWonka/agents_learning.git
+cd agents_learning
+npm ci
+```
+
+### 2. Configure API Key
+
+Create a `.env` file in the root directory:
+
+```env
+OPENAI_API_KEY=your_api_key_here
+```
+
+**Never commit your `.env` file to Git.** API usage is billed to the account associated with your key.
+
+### 3. Build & Link CLI
+
+```bash
+npm run build
+npm link
+```
+
+This registers `tweakedBot` as a command on your computer.
+
+### 4. Usage
+
+Navigate to any project directory and run:
+
+```bash
+cd path/to/your/project
+tweakedBot "Explain this project"
+```
+
+Other examples:
+
+```bash
+tweakedBot "Review my current Git changes"
+tweakedBot "Find and explain the DFS implementation"
+tweakedBot "What tests exist in this project?"
+```
+
+### Updating
+
+```bash
+cd path/to/agents_learning
+git pull
+npm ci
+npm run build
+```
+
+### Notes
+- The agent is designed to be read-only.
+- Requires an internet connection and OpenAI API credits.
+- Run `npm link` separately on each computer.
+- The CLI uses the current working directory as its project context.
 
 
 # Example Output 
@@ -166,5 +231,5 @@ In short, it is an **LLM-driven, tool-using repository investigator**: the model
   outputTokens: 675,<br/>
   cachedTokens: 4041,<br/>
   totalTokens: 12571<br/>
-}<br/>
+}
 </details>
