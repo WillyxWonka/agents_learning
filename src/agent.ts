@@ -36,7 +36,7 @@ to decide what to do next.
 */
 export async function runAgent( goal: string ) {
 
-    /// USAGE Variables
+    /// TOKEN USAGE: Variables
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
     let totalCachedTokens = 0;
@@ -46,7 +46,7 @@ export async function runAgent( goal: string ) {
         totalOutputTokens += response.usage?.output_tokens ?? 0;
         totalCachedTokens += response.usage ?.input_tokens_details ?.cached_tokens ?? 0;
     }
-    /// USAGE HELPER END
+    /// TOKEN USAGE: HELPER END
     
 
     //FIRST PROMPT

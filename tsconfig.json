@@ -2,8 +2,8 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "rootDir": "./src", //source TypeScript files go under `src`
+    "outDir": "./dist", //compiled JavaScript and related outputs go under `dist`
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -21,16 +21,21 @@
     "declarationMap": true,
 
     // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": true, //assumes that accessing an array or object by index may return undefined
     "exactOptionalPropertyTypes": true,
 
     // Style Options
     // "noImplicitReturns": true,
     // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": true, //disallow property access via an index signature
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnusedLabels": false,
+    "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false,
+
+    // "erasableSyntaxOnly": true, //makes certain syntax erasable, like type assertions, but not type annotations. This is useful for code that will be erased by a transformer, like Babel or SWC.
+    "noErrorTruncation": true, //prevents TypeScript from truncating error messages, which can be useful for debugging
 
     // Recommended Options
     "strict": true,
