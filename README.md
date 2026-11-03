@@ -55,7 +55,7 @@ The primary objective is to develop a reusable developer tool while gaining hand
 
 ### Planned Improvements
 
-- [ ] Develop a reusable command-line interface (CLI).
+- [X] Develop a reusable command-line interface (CLI).
 - [ ] Implement an interactive `ask` workflow for natural-language repository questions.
 - [ ] Add execution-step and token usage limits.
 - [ ] Improve error handling and input validation.
@@ -71,7 +71,7 @@ Current development focuses on improving reliability, expanding repository analy
 
 
 
-## Installation & Setup
+# Installation & Setup
 
 ### Prerequisites
 - Node.js and npm
