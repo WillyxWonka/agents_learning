@@ -13,7 +13,7 @@ config({
 
 const client = new OpenAI();
 
-const MAX_STEPS = 8;
+const MAX_STEPS = 15;
 
 const AGENT_INSTRUCTIONS = `
     You are a read-only coding assistant operating
@@ -26,6 +26,7 @@ const AGENT_INSTRUCTIONS = `
     - Do not access files outside the project root.
     - Avoid unnecessary tool calls.
     - If insufficient information exists, say so.
+    - you only have ${MAX_STEPS} steps to answer the question, so use them wisely and sparingly.
 `
 /*
 At every cycle, our program sends the model the accumulated context and available actions. 
