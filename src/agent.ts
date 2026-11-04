@@ -34,8 +34,10 @@ The model performs another token-based inference and generates either a tool req
 The tool executes outside the model, its result is added to the context, and the model gets another chance 
 to decide what to do next.
 */
-export async function runAgent( goal: string ) {
+export async function runAgent( goal: string , steps?: number ) {
 
+    steps = steps ?? MAX_STEPS;
+    
     /// TOKEN USAGE: Variables
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
@@ -90,9 +92,11 @@ export async function runAgent( goal: string ) {
 
         for (const call of functionCalls) {
 
+            console.log("--------------------------------");
             console.log( `MODEL REQUESTED: ${call.name}` );
             console.log( `ARGUMENTS: ${call.arguments}` );
-
+            console.log("--------------------------------");
+            
             try {
 
                 const result = executeTool( call.name, call.arguments );
@@ -110,11 +114,10 @@ export async function runAgent( goal: string ) {
                 }
                 */ 
                
-                //this saves on output tokens if the returned value is only a string 
-                // and not an object, i.e it wont add extra line spacing for a string
-                const toolOutput = typeof result === "string" ?
-                result : 
-                JSON.stringify(result);
+                // this is a workaround for the fact that the model expects a string, but some tools return objects. 
+                // it also save on token usage by not sending the entire object back to the model, but rather a stringified version of it.
+                // i.e it wont add extra line spacing for a string
+                const toolOutput = typeof result === "string" ? result : JSON.stringify(result);
 
                 toolOutputs.push({
 
@@ -139,18 +142,18 @@ export async function runAgent( goal: string ) {
             }
         }
 
-            response = await client.responses.create({
-                model: "gpt-6-luna",
-                reasoning: { effort: "none" },
-                instructions:AGENT_INSTRUCTIONS,
-                previous_response_id: response.id,
-                input: toolOutputs,
-                tools,
-                tool_choice: "auto"
-            });
-            recordUsage();
+        response = await client.responses.create({
+            model: "gpt-6-luna",
+            reasoning: { effort: "none" },
+            instructions:AGENT_INSTRUCTIONS,
+            previous_response_id: response.id,
+            input: toolOutputs,
+            tools,
+            tool_choice: "auto"
+        });
+        
+        recordUsage();
     }
-
 
     return `Agent exceeded ${MAX_STEPS} steps.`;
 }
