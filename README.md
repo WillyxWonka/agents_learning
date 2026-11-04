@@ -122,6 +122,12 @@ tweakedBot "Find and explain the DFS implementation"
 tweakedBot "What tests exist in this project?"
 ```
 
+if you want to limit the number of steps the agent can take, you can provide a second argument adding a number after the prompt. For example, to limit the agent to # steps:
+this may change in the future, but for now, you can do this:
+```bash
+tweakedBot "Review my current Git changes" 5
+tweakedBot "Find and explain the DFS implementation" 10
+```
 ### Updating
 
 ```bash
