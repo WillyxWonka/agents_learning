@@ -5,7 +5,7 @@ import { executeTool } from "./tools/dispatcher.js";
 
 import { config } from "dotenv";
 import { fileURLToPath } from "node:url";
-import { saveHistory } from "./tools/chatHistory.js";
+import { saveHistory, getHistoryPath } from "./tools/chatHistory.js";
 import fs from "node:fs";
 import path from "node:path";
 // Load .env from the agent's own project directory
@@ -165,14 +165,10 @@ export async function runAgent( goal: string , steps?: number ) {
 }
 
 function finishResponse(goal: string, finalAnswer: string) {
-    const historyPath = path.resolve(
-        process.cwd(),
-        "tweakedBotChatHistory/recent.md"
-    );
+    
+    const historyPath =getHistoryPath()
 
-    const history = fs.existsSync(historyPath)
-        ? fs.readFileSync(historyPath, "utf8")
-        : "";
+    const needsHeader = !fs.existsSync(historyPath) || fs.statSync(historyPath).size === 0;
 
     const entry = [
         "",
@@ -194,11 +190,11 @@ function finishResponse(goal: string, finalAnswer: string) {
         ""
     ].join("\n");
 
-    const header = history.length === 0
+    const header = needsHeader
         ? "# TweakedBot — Conversation History\n"
         : "";
 
-    saveHistory(historyPath, header + entry);
+    saveHistory( header + entry);
 }
 
 //returns entire resonse object for debugging purposes

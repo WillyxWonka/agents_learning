@@ -2,7 +2,6 @@ import { listFiles, readFile, searchFiles, readFileRange } from "./filesystem.js
 import { getGitDiff } from "./git.js";
 import { writeHistoryFile } from "./chatHistory.js";
 import {z} from "zod";
-import path from "node:path";
 
 
 const PathArgs = z.object({
