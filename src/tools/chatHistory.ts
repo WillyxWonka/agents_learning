@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ALLOWED_HISTORY_FILES = new Set([
-    "tweakedBotChatHistory/recent.md",
-    "tweakedBotChatHistory/long.md"
+    path.resolve(process.cwd(), "tweakedBotChatHistory/recent.md"),
+     path.resolve(process.cwd(), "tweakedBotChatHistory/long.md")
 ]);
 /**
  * manually called save file function 

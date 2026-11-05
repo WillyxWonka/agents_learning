@@ -1,82 +1,98 @@
-# TweakedBot - AI Codebase Auditor & Developer Assistant
+# TweakedBot — AI Codebase Auditor & Developer Assistant
 
+A lightweight, CLI-based AI developer assistant built with **TypeScript, Node.js, and the OpenAI Responses API**.
 
-## Inspiration 
-TweakedBot started with a simple idea: I wanted an AI assistant that could answer quick questions about a project or homework assignment without requiring me to constantly copy and paste code into ChatGPT.
+TweakedBot explores local repositories, answers development questions, reviews code, and maintains conversation history between sessions.
 
-I often found myself explaining my project structure, sharing entire scripts, and hoping ChatGPT had enough context to give me an accurate answer. I realized that if I could build an agent capable of exploring my codebase directly, I could eliminate much of that repetitive work and get answers based on the actual state of my project.
+## Inspiration
 
-I initially considered using existing tools like Claude Code or GitHub Copilot. However, I wanted something simpler and more focused on helping me understand my code rather than just writing or fixing it for me.
+TweakedBot started with a simple idea: I wanted an AI assistant that could answer quick questions about a project or homework assignment without constantly copying and pasting code into ChatGPT.
 
-This project is also an opportunity for me to get hands-on experience with AI agent development, tool calling, and building practical developer tools from scratch.
+I often found myself explaining project structures, sharing entire scripts, and hoping ChatGPT had enough context to answer accurately.
+
+Rather than relying entirely on existing coding assistants, I wanted to build something simpler and focused on **understanding code, not just generating it**.
+
+This project is also an opportunity to explore AI agent architecture, tool calling, persistent memory, and practical developer tooling from scratch.
 
 ## Overview
 
-A read-only AI developer agent built with **TypeScript, Node.js, and the OpenAI API**.
+TweakedBot is a reusable, primarily read-only developer assistant that operates within the current project directory.
 
-This project explores **AI agent architecture, tool calling, and multi-step execution workflows** through the development of a reusable codebase auditing and repository analysis tool.
+It uses an iterative agent loop to investigate files, execute permitted tools, and answer questions using retrieved repository information.
 
-The agent is designed to inspect local repositories, gather relevant source code context, and assist developers in identifying potential bugs, regressions, and implementation issues.
+The model decides which tools to request, while the TypeScript application handles tool execution, validation, and conversation logging.
 
-> **Note:** The agent is designed for read-only analysis. It does not intentionally modify project files.
+**Codebase analysis is read-only.** The application writes local Markdown conversation-history files but does not provide general-purpose code modification tools.
 
 ## Features
 
-- **AI-Driven Tool Execution**
-  - Uses an iterative agent loop to select tools, inspect results, and continue investigating a codebase.
+### AI Agent & Repository Analysis
+- Multi-step tool execution using the OpenAI Responses API.
+- Natural-language questions through a global CLI.
+- File exploration, reading, and keyword searching.
+- Git diff inspection for code reviews and regression analysis.
+- Source-code explanations and debugging assistance.
 
-- **Repository Exploration**
-  - Navigates project directories.
-  - Reads source files and specific line ranges.
-  - Searches files for relevant code and keywords.
+### Persistent Conversation History
+- Automatically saves completed conversations to Markdown.
+- Loads a bounded excerpt of recent history for subsequent CLI runs.
+- Maintains project-specific context between sessions.
+- Supports follow-up questions using previously saved context.
 
-- **Git Integration**
-  - Inspects staged and unstaged changes.
-  - Supports code reviews and regression analysis.
-
-- **Read-Only Design**
-  - Restricts available tools to inspection operations.
-  - Does not provide file modification tools.
-
-- **Execution Safeguards**
-  - Validates paths against the configured project directory.
-  - Limits file sizes and search results to reduce unnecessary resource consumption.
+### Execution Safeguards
+- Restricted filesystem tools and argument validation.
+- File-size, line-range, and search-result limits.
+- Configurable agent step limit (when enabled).
+- Token-usage reporting, including cached input tokens.
+- Read-only repository investigation, with designated history-file writes.
 
 ## Tech Stack
 
-- **Language:** TypeScript
-- **Runtime:** Node.js
-- **AI Integration:** OpenAI API
-- **Version Control:** Git
+| Technology | Purpose |
+|---|---|
+| TypeScript | Agent orchestration and tool implementations |
+| Node.js | CLI runtime and filesystem operations |
+| OpenAI Responses API | Model inference and function calling |
+| Zod | Tool argument validation |
+| Git | Repository change inspection |
+| Markdown | Local conversation history |
 
-## Project Goals
+## How It Works
 
-The primary objective is to develop a reusable developer tool while gaining hands-on experience with AI agent orchestration, tool development, and safe filesystem access.
+1. A user submits a question through the CLI.
+2. TweakedBot loads recent conversation history when available.
+3. The model receives the question, history context, instructions, and tool definitions.
+4. The model requests tools as needed to investigate the repository.
+5. TweakedBot executes the tools and returns their results to the model.
+6. The process continues until the model produces a final answer or reaches the execution limit.
+7. Completed conversations are saved locally for future sessions.
 
-### Planned Improvements
+### Conversation Memory
 
-- [X] Develop a reusable command-line interface (CLI).
-- [ ] Implement an interactive `ask` workflow for natural-language repository questions.
-- [ ] Add execution-step and token usage limits.
-- [ ] Improve error handling and input validation.
-- [ ] Expand automated testing and documentation.
+Each project can maintain its own conversation history:
 
-## Project Status
+```text
+your-project/
+├── src/
+├── package.json
+└── tweakedBotChatHistory/
+    └── recent.md
+```
 
-**In Development**
+Recent exchanges are stored in Markdown and can be supplied to future model requests.
 
-The initial codebase auditing workflow and core filesystem tools have been implemented.
+History is stored locally rather than relying solely on the API's response chain. This allows context to persist across independent CLI executions.
 
-Current development focuses on improving reliability, expanding repository analysis capabilities, and introducing a reusable CLI interface.
+To manage context size, only a limited portion of recent history is provided. Older exchanges may not remain available indefinitely.
 
-
-
-# Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
+
 - Node.js and npm
 - Git
 - OpenAI API key
+- Internet connection
 
 ### 1. Clone & Install
 
@@ -88,13 +104,15 @@ npm ci
 
 ### 2. Configure API Key
 
-Create a `.env` file in the root directory:
+Create a `.env` file in TweakedBot's installation directory:
 
 ```env
 OPENAI_API_KEY=your_api_key_here
 ```
 
-**Never commit your `.env` file to Git.** API usage is billed to the account associated with your key.
+**Never commit `.env` files or API credentials to Git.**
+
+API usage is billed to the account associated with the provided key.
 
 ### 3. Build & Link CLI
 
@@ -103,11 +121,11 @@ npm run build
 npm link
 ```
 
-This registers `tweakedBot` as a command on your computer.
+This registers the `tweakedBot` command globally on your local machine.
 
 ### 4. Usage
 
-Navigate to any project directory and run:
+Navigate to a project directory:
 
 ```bash
 cd path/to/your/project
@@ -120,122 +138,93 @@ Other examples:
 tweakedBot "Review my current Git changes"
 tweakedBot "Find and explain the DFS implementation"
 tweakedBot "What tests exist in this project?"
+tweakedBot "What were we working on previously?"
 ```
 
-if you want to limit the number of steps the agent can take, you can provide a second argument adding a number after the prompt. For example, to limit the agent to # steps:
-this may change in the future, but for now, you can do this:
+### Optional Step Limit
+
+If supported by the current build, provide a number after the prompt to override the default execution-step limit:
+
 ```bash
 tweakedBot "Review my current Git changes" 5
-tweakedBot "Find and explain the DFS implementation" 10
 ```
-### Updating
+
+### Updating TweakedBot
+
+From the TweakedBot installation directory:
 
 ```bash
-cd path/to/agents_learning
 git pull
 npm ci
 npm run build
 ```
 
-### Notes
-- The agent is designed to be read-only.
-- Requires an internet connection and OpenAI API credits.
-- Run `npm link` separately on each computer.
-- The CLI uses the current working directory as its project context.
+Existing `npm link` installations normally use the rebuilt files without requiring another link operation. Run `npm link` separately on each new computer.
 
-
-# Example Output 
+## Example Output
 
 <details>
-<summary>View full terminal output</summary>
+<summary>View sample agent execution</summary>
 
 ```text
-~/OneDrive/Desktop/Dev/agent-learning $ npm run dev -- "Explain this project"
-
-> agent-learning@1.0.0 dev
-> tsx src/index.ts Explain this project
-
-
 --- AGENT STEP 1 ---
-MODEL REQUESTED: list_files
-ARGUMENTS: {"path":"."}
-TOOL RESULT: list_files completed
-
---- AGENT STEP 2 ---
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"package.json"}
-TOOL RESULT: read_file completed
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"README.md"}
-TOOL RESULT: read_file completed
 MODEL REQUESTED: list_files
 ARGUMENTS: {"path":"src"}
 TOOL RESULT: list_files completed
 
---- AGENT STEP 3 ---
 MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"src/index.ts"}
+ARGUMENTS: {"path":"package.json"}
 TOOL RESULT: read_file completed
+
+--- AGENT STEP 2 ---
 MODEL REQUESTED: read_file
 ARGUMENTS: {"path":"src/agent.ts"}
 TOOL RESULT: read_file completed
-MODEL REQUESTED: list_files
-ARGUMENTS: {"path":"src/tools"}
-TOOL RESULT: list_files completed
 
---- AGENT STEP 4 ---
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"src/tools/definitions.ts"}
-TOOL RESULT: read_file completed
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"src/tools/dispatcher.ts"}
-TOOL RESULT: read_file completed
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"src/tools/filesystem.ts"}
-TOOL RESULT: read_file completed
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"src/tools/git.ts"}
-TOOL RESULT: read_file completed
-
---- AGENT STEP 5 ---
+--- AGENT STEP 3 ---
 
 FINAL ANSWER:
-This is a small **TypeScript command-line agent for exploring and reviewing a code repository**. Its README describes it as an experiment in building a reusable, read-only auditor.
+This project implements a TypeScript-based CLI
+developer assistant using the OpenAI Responses API.
 
-### How it works
-
-1. **Accepts a question on the command line.** `src/index.ts` joins the command-line arguments into a prompt, calls `runAgent`, and prints the answer and token-usage totals. If no prompt isprovided, it prints a usage message.
-2. **Asks an OpenAI model what to do.** `src/agent.ts` sends the prompt, instructions, and available tools to the Responses API. The model can either answer directly or request tools. The agent executes requested tools, sends their results back, and repeats, with a limit of eight steps.
-3. **Provides repository-inspection tools:**
-   - List a directory’s immediate contents
-   - Read a text file or a line range
-   - Search supported text files for a literal phrase
-   - Retrieve staged and unstaged Git diffs and untracked-file names
-
-   `src/tools/dispatcher.ts` validates tool arguments with Zod and routes requests to the filesystem or Git implementations.
-
-### Guardrails and limits
-
-The filesystem tools resolve paths within the project root, skip common generated or sensitive directories and files, limit file reads to 50,000 bytes, and cap searches at 20 results. Rangereads are limited to 200 lines. The agent’s instructions also tell the model to treat repository contents as untrusted and to support claims with retrieved evidence.
-
-### Running it
-
-The package scripts define:
-
-```bash
-npm run dev -- "your question about the repository"
-npm run typecheck
+The model selects tools to inspect the repository,
+while the application executes those tools and
+returns their results for further analysis.
 ```
 
-The app imports `dotenv/config` and constructs an OpenAI client, so it expects the relevant API credentials in the environment. There is no configured test suite: the `test` script currently exits with “no test specified.”
+*Abbreviated illustrative output. Actual tool calls and token usage vary by request.*
 
-In short, it is an **LLM-driven, tool-using repository investigator**: the model decides what to inspect, while the TypeScript tools perform bounded, read-only file and Git queries.
-<br/>
-{
-    <br/>
-  inputTokens: 11896,<br/>
-  outputTokens: 675,<br/>
-  cachedTokens: 4041,<br/>
-  totalTokens: 12571<br/>
-}
 </details>
+
+## Project Progress
+
+- [x] Implement filesystem inspection tools.
+- [x] Add Git change inspection.
+- [x] Implement multi-step agent orchestration.
+- [x] Develop a reusable CLI.
+- [x] Support natural-language repository questions.
+- [x] Track API token usage.
+- [x] Implement local Markdown conversation history.
+- [x] Automatically save completed exchanges.
+- [ ] Make conversation History more robust and stable
+- [ ] Add automatic history summarization and archival.
+- [ ] Strengthen filesystem security and error recovery.
+- [ ] Expand automated testing.
+- [ ] Improve context retrieval and token efficiency.
+
+## Project Status
+
+**In Active Development**
+
+TweakedBot currently supports repository inspection, natural-language questions, Git analysis, and persistent local conversation history.
+
+Ongoing development focuses on improving memory management, execution reliability, security, and overall token efficiency.
+
+## Notes & Limitations
+
+- TweakedBot uses the current working directory as its project context <strong>`! THEREFORE BE SURE YOU ARE IN THE CORRECT DIRECTORY !`</strong>.
+- Conversation history may contain user questions and model responses, including source-code excerpts.
+- Consider adding `tweakedBotChatHistory/` to the target project's `.gitignore`.
+- Repository content retrieved by tools may be transmitted to the configured OpenAI API.
+- Memory is limited to the context explicitly loaded or retrieved for each run.
+- The agent is intended for development assistance, not unattended code modification.
