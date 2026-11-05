@@ -5,6 +5,7 @@ import { executeTool } from "./tools/dispatcher.js";
 
 import { config } from "dotenv";
 import { fileURLToPath } from "node:url";
+import { saveHistory } from "./tools/chatHistory.js";
 
 // Load .env from the agent's own project directory
 config({
@@ -22,11 +23,13 @@ const AGENT_INSTRUCTIONS = `
     - Answer the user's question directly.
     - Inspect project files when necessary.
     - Use available tools to gather evidence.
-    - Do not modify files.
+    - Do not modify or write to any files.
     - Do not access files outside the project root.
     - Avoid unnecessary tool calls.
+    - notify the user if you identify obvious bugs, regressions, unsafe behavior, incorrect assumptions, or missing validation in the code.
     - If insufficient information exists, say so.
-    - you only have ${MAX_STEPS} steps to answer the question, so use them wisely and sparingly.
+    - you only have a limited amount of steps provided within your parameters to answer the question, so use them wisely and sparingly.
+    - you have previous conversation history filestweakedBotChatHistory/recent.md and potentially tweakedBotChatHistory/long.md. each time you are called, you should check these files to see if you are continuing a previous conversation. If so, continue the conversation and reference the previous context.
 `
 /*
 At every cycle, our program sends the model the accumulated context and available actions. 
@@ -69,29 +72,34 @@ export async function runAgent( goal: string , steps?: number ) {
 
 
     //Loop for "max_steps" and reason through the problem with th toolsavailable"
-    for(let step = 0; step < MAX_STEPS; step++){
+    for(let step = 0; step < steps; step++){
 
         console.log( `\n--- AGENT STEP ${step + 1} ---` );
 
         const functionCalls = response.output.filter( item => item.type === "function_call" );
 
-        if (functionCalls.length === 0){
+        if (functionCalls.length === 0) {
+            const finalAnswer = response.output_text;
 
-            return {    
-                OT: response.output_text,
+            saveHistory(
+                "tweakedBotChatHistory/recent.md",
+                `\n\nUser: ${goal}\nAssistant: ${finalAnswer}`
+            );
+
+            return {
+                OT: finalAnswer,
                 Tokens: {
-                    inputTokens: totalInputTokens,
-                    outputTokens: totalOutputTokens,
-                    cachedTokens: totalCachedTokens,
-                    totalTokens: totalInputTokens + totalOutputTokens
-            }};
+                    totalInputTokens,
+                    totalOutputTokens,
+                    totalCachedTokens,
+                }
+            };
         }
-
 
         const toolOutputs: Array<{ type: "function_call_output"; call_id: string; output: string; }> = [];
 
         for (const call of functionCalls) {
-
+            
             console.log("--------------------------------");
             console.log( `MODEL REQUESTED: ${call.name}` );
             console.log( `ARGUMENTS: ${call.arguments}` );
@@ -104,15 +112,6 @@ export async function runAgent( goal: string , steps?: number ) {
                 console.log(
                     `TOOL RESULT: ${call.name} completed`
                 );
-                /* 
-                //alternative response here 
-                if (typeof result === "string") {
-                    console.log( `TOOL RESULT: ${result.length} characters returned` );
-                } else {
-                    console.log("TOOL RESULT:");
-                    console.dir( result, { depth: null } );
-                }
-                */ 
                
                 // this is a workaround for the fact that the model expects a string, but some tools return objects. 
                 // it also save on token usage by not sending the entire object back to the model, but rather a stringified version of it.
@@ -120,11 +119,9 @@ export async function runAgent( goal: string , steps?: number ) {
                 const toolOutput = typeof result === "string" ? result : JSON.stringify(result);
 
                 toolOutputs.push({
-
                     type: "function_call_output",
                     call_id: call.call_id,
-
-                    output: JSON.stringify(toolOutput)
+                    output: toolOutput
                 });
 
             }
@@ -155,5 +152,9 @@ export async function runAgent( goal: string , steps?: number ) {
         recordUsage();
     }
 
-    return `Agent exceeded ${MAX_STEPS} steps.`;
+    return `Agent exceeded ${steps} steps.`;
 }
+//returns entire resonse object for debugging purposes
+// console.log(
+//     JSON.stringify(response, null, 2)
+// );

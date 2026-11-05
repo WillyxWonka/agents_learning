@@ -1,6 +1,8 @@
 import { listFiles, readFile, searchFiles, readFileRange } from "./filesystem.js";
 import { getGitDiff } from "./git.js";
+import { writeHistoryFile } from "./chatHistory.js";
 import {z} from "zod";
+import path from "node:path";
 
 
 const PathArgs = z.object({
@@ -17,7 +19,10 @@ const ReadFileRangeArgs = z.object({
         startLine: z.number() .int() .positive(),
         endLine: z.number() .int() .positive()
     }).strict();
-
+const writeHistoryFileArgs = z.object({
+        path: z.string() .min(1),
+        content: z.string() .min(1),
+    });
 export function executeTool( toolName: string, rawArguments: string ) {
 
     const raw = JSON.parse(rawArguments);
@@ -47,6 +52,13 @@ export function executeTool( toolName: string, rawArguments: string ) {
                 args.path,
                 args.startLine,
                 args.endLine
+            );
+        }
+        case "write_history_file":{
+            const args = writeHistoryFileArgs.parse(raw);
+            return writeHistoryFile(
+                args.path,
+                args.content
             );
         }
 
