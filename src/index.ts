@@ -15,12 +15,13 @@ async function main() {
 
     console.log("\nFINAL ANSWER:");
 
+    //commented out potentially unnecessary console log for responses
     if (typeof answer === "string") {
-        console.log(answer);
+        //console.log(answer);
     } else {
         const { OT, Tokens } = answer;
 
-        console.log(OT);
+        //console.log(OT);
         console.log(Tokens);
     }
 
