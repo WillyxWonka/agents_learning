@@ -10,11 +10,6 @@ import fs from "node:fs";
 import path from "node:path";
 
 
-// instructions_path = Path(__file__).parent / "instructions.md"
-// agent_instructions = instructions_path.read_text(encoding="utf-8")
-
-
-
 // Load .env from the agent's own project directory
 config({
     path: fileURLToPath(new URL("../.env", import.meta.url))
@@ -22,7 +17,7 @@ config({
 
 //Load agent instructions from .md file
 const INSTRUCTIONS_PATH = fileURLToPath(
-  new URL("AGENTS.md", import.meta.url)
+  new URL("../src/AGENTS.md", import.meta.url)
 );
 const AGENT_INSTRUCTIONS = fs.existsSync(INSTRUCTIONS_PATH) ? fs.readFileSync(INSTRUCTIONS_PATH, "utf8") : "Let the user know that the instructions were not loaded correctly and that is all";
 

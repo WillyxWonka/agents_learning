@@ -17,7 +17,6 @@ This project is also an opportunity to explore AI agent architecture, tool calli
 ## Overview
 
 TweakedBot is a reusable, primarily read-only developer assistant that operates within the current project directory.
-
 It uses an iterative agent loop to investigate files, execute permitted tools, and answer questions using retrieved repository information.
 
 The model decides which tools to request, while the TypeScript application handles tool execution, validation, and conversation logging.

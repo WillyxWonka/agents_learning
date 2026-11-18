@@ -19,9 +19,9 @@ async function main() {
     if (typeof answer === "string") {
         //console.log(answer);
     } else {
-        const { OT, Tokens } = answer;
-
+        // const { OT, Tokens } = answer;
         //console.log(OT);
+        const {Tokens } = answer;
         console.log(Tokens);
     }
 
