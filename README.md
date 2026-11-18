@@ -4,24 +4,53 @@ A lightweight, CLI-based AI developer assistant built with **TypeScript, Node.js
 
 TweakedBot explores local repositories, answers development questions, reviews code, and maintains conversation history between sessions.
 
-## Inspiration
 
+
+# Inspiration
+```
 TweakedBot started with a simple idea: I wanted an AI assistant that could answer quick questions about a project or homework assignment without constantly copying and pasting code into ChatGPT.
 
 I often found myself explaining project structures, sharing entire scripts, and hoping ChatGPT had enough context to answer accurately.
 
-Rather than relying entirely on existing coding assistants, I wanted to build something simpler and focused on **understanding code, not just generating it**.
+Rather than relying entirely on existing coding assistants, I wanted to build something simpler and focused on understanding code, not just generating it.
 
 This project is also an opportunity to explore AI agent architecture, tool calling, persistent memory, and practical developer tooling from scratch.
+```
+
+## Example Output
+
+<details>
+<summary>View sample agent execution</summary>
+
+# <span style="color: green;">~</span>start
+
+### <strong><span style="color: #f2cc8f;">You:</span></strong>
+```text 
+Nov 18, 2026, 7:04 AM
+
+Say hello to the github README TweakedBot!
+```
+
+><small><span style="color: #669bbc"><strong>Token usage:</strong></span> &nbsp;&nbsp;&nbsp; **Input:** 17152 &nbsp;&nbsp; | &nbsp;&nbsp; **Output:** 90 &nbsp;&nbsp; | &nbsp;&nbsp; **Cached:** 4535</small>
+
+
+## <strong><span style="color: #f2cc8f;">TweakedBot:</span></strong>
+Hello, GitHub README! 👋
+
+# <span style="color: red;">~</span>end
+</details>
+
 
 ## Overview
 
+```
 TweakedBot is a reusable, primarily read-only developer assistant that operates within the current project directory.
 It uses an iterative agent loop to investigate files, execute permitted tools, and answer questions using retrieved repository information.
 
 The model decides which tools to request, while the TypeScript application handles tool execution, validation, and conversation logging.
 
 **Codebase analysis is read-only.** The application writes local Markdown conversation-history files but does not provide general-purpose code modification tools.
+```
 
 ## Features
 
@@ -34,27 +63,17 @@ The model decides which tools to request, while the TypeScript application handl
 
 ### Persistent Conversation History
 - Automatically saves completed conversations to Markdown.
-- Loads a bounded excerpt of recent history for subsequent CLI runs.
-- Maintains project-specific context between sessions.
+- Loads a bounded (<em>12000 lines of the chat history</em>) excerpt of recent history for subsequent CLI runs.
 - Supports follow-up questions using previously saved context.
 
 ### Execution Safeguards
+- BE SURE YOU ARE IN THE CORRECT PROJECT BEFORE YOU RUN THE CLI! OTHERWISE A CHATHISTORY FOLDER WILL GENERATE AT THE ROOT OF THAT FOLDER. (<em>you can delete it, its just a hassle</em>)
 - Restricted filesystem tools and argument validation.
 - File-size, line-range, and search-result limits.
 - Configurable agent step limit (when enabled).
 - Token-usage reporting, including cached input tokens.
-- Read-only repository investigation, with designated history-file writes.
+- Read-only repository investigation.
 
-## Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| TypeScript | Agent orchestration and tool implementations |
-| Node.js | CLI runtime and filesystem operations |
-| OpenAI Responses API | Model inference and function calling |
-| Zod | Tool argument validation |
-| Git | Repository change inspection |
-| Markdown | Local conversation history |
 
 ## How It Works
 
@@ -66,7 +85,7 @@ The model decides which tools to request, while the TypeScript application handl
 6. The process continues until the model produces a final answer or reaches the execution limit.
 7. Completed conversations are saved locally for future sessions.
 
-### Conversation Memory
+## Conversation Memory
 
 Each project can maintain its own conversation history:
 
@@ -84,13 +103,13 @@ History is stored locally rather than relying solely on the API's response chain
 
 To manage context size, only a limited portion of recent history is provided. Older exchanges may not remain available indefinitely.
 
-## Installation & Setup
+# Installation & Setup
 
-### Prerequisites
+### Prerequisites:
 
 - Node.js and npm
 - Git
-- OpenAI API key
+- <strong style="color: red">OpenAI API key <--- </strong>
 - Internet connection
 
 ### 1. Clone & Install
@@ -160,40 +179,6 @@ npm run build
 
 Existing `npm link` installations normally use the rebuilt files without requiring another link operation. Run `npm link` separately on each new computer.
 
-## Example Output
-
-<details>
-<summary>View sample agent execution</summary>
-
-```text
---- AGENT STEP 1 ---
-MODEL REQUESTED: list_files
-ARGUMENTS: {"path":"src"}
-TOOL RESULT: list_files completed
-
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"package.json"}
-TOOL RESULT: read_file completed
-
---- AGENT STEP 2 ---
-MODEL REQUESTED: read_file
-ARGUMENTS: {"path":"src/agent.ts"}
-TOOL RESULT: read_file completed
-
---- AGENT STEP 3 ---
-
-FINAL ANSWER:
-This project implements a TypeScript-based CLI
-developer assistant using the OpenAI Responses API.
-
-The model selects tools to inspect the repository,
-while the application executes those tools and
-returns their results for further analysis.
-```
-
-*Abbreviated illustrative output. Actual tool calls and token usage vary by request.*
-
-</details>
 
 ## Project Progress
 
@@ -205,25 +190,19 @@ returns their results for further analysis.
 - [x] Track API token usage.
 - [x] Implement local Markdown conversation history.
 - [x] Automatically save completed exchanges.
+- [ ] add option to increase history context from 12000 lines to a user input value
 - [ ] Make conversation History more robust and stable
 - [ ] Add automatic history summarization and archival.
 - [ ] Strengthen filesystem security and error recovery.
-- [ ] Expand automated testing.
 - [ ] Improve context retrieval and token efficiency.
 
 ## Project Status
 
-**In Active Development**
-
-TweakedBot currently supports repository inspection, natural-language questions, Git analysis, and persistent local conversation history.
-
-Ongoing development focuses on improving memory management, execution reliability, security, and overall token efficiency.
+Ongoing development focuses on improving memory management, execution reliability, <strong>security</strong>, and overall token efficiency.
 
 ## Notes & Limitations
 
-- TweakedBot uses the current working directory as its project context <strong>`! THEREFORE BE SURE YOU ARE IN THE CORRECT DIRECTORY !`</strong>.
-- Conversation history may contain user questions and model responses, including source-code excerpts.
-- Consider adding `tweakedBotChatHistory/` to the target project's `.gitignore`.
-- Repository content retrieved by tools may be transmitted to the configured OpenAI API.
-- Memory is limited to the context explicitly loaded or retrieved for each run.
-- The agent is intended for development assistance, not unattended code modification.
+- TweakedBot uses the current working directory as its project context <strong>`!THEREFORE BE SURE YOU ARE IN THE CORRECT DIRECTORY!`</strong>.
+- Definitely add `tweakedBotChatHistory/` to the target project's `.gitignore`.
+- Memory is limited to the context of the recent.md file in the tweakedBotChatHistory folder
+- The agent currently uses a low end model, but if you fork or clone feel free to swap the model to a more expensive one with your  openAI 
