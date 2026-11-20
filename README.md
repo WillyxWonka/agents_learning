@@ -1,9 +1,18 @@
 # TweakedBot — AI Codebase Auditor & Developer Assistant
 
-A lightweight, CLI-based AI developer assistant built with **TypeScript, Node.js, and the OpenAI Responses API**.
+A lightweight, CLI-based AI developer assistant built with **TypeScript, Node.js, and the OpenAI <u><a href="https://developers.openai.com/api/reference/responses/overview/">Responses API</a></u>**.
 
-TweakedBot explores local repositories, answers development questions, reviews code, and maintains conversation history between sessions.
+TweakedBot is a reusable, primarily read-only developer assistant that operates within 
+the current project directory.
 
+It uses an iterative agent loop to investigate files, execute permitted tools, and 
+answer questions using retrieved repository information.
+
+The model decides which tools to request, while the TypeScript application handles tool 
+execution, validation, and conversation logging.
+
+**Codebase analysis is read-only.** The application writes local Markdown conversation-
+history files but does not provide general-purpose code modification tools.
 
 
 # Inspiration
@@ -18,9 +27,10 @@ This project is also an opportunity to explore AI agent architecture, tool calli
 ```
 
 ## Example Output
+![App screenshot](./images/exampleOutput.png)
 
-<details>
-<summary>View sample agent execution</summary>
+<!-- <details>
+<summary>View sample agent execution - *NOTE that there is more color than displayed here </summary>
 
 # <span style="color: green;">~</span>start
 
@@ -38,19 +48,7 @@ Say hello to the github README TweakedBot!
 Hello, GitHub README! 👋
 
 # <span style="color: red;">~</span>end
-</details>
-
-
-## Overview
-
-```
-TweakedBot is a reusable, primarily read-only developer assistant that operates within the current project directory.
-It uses an iterative agent loop to investigate files, execute permitted tools, and answer questions using retrieved repository information.
-
-The model decides which tools to request, while the TypeScript application handles tool execution, validation, and conversation logging.
-
-**Codebase analysis is read-only.** The application writes local Markdown conversation-history files but does not provide general-purpose code modification tools.
-```
+</details> -->
 
 ## Features
 
@@ -58,12 +56,12 @@ The model decides which tools to request, while the TypeScript application handl
 - Multi-step tool execution using the OpenAI Responses API.
 - Natural-language questions through a global CLI.
 - File exploration, reading, and keyword searching.
-- Git diff inspection for code reviews and regression analysis.
+- Git diff inspection for code reviews and regression analysis. <-- this is not that robust yet
 - Source-code explanations and debugging assistance.
 
 ### Persistent Conversation History
 - Automatically saves completed conversations to Markdown.
-- Loads a bounded (<em>12000 lines of the chat history</em>) excerpt of recent history for subsequent CLI runs.
+- Loads a bounded (<em>12000 characters of the chat history</em>) excerpt of recent history for subsequent CLI runs.
 - Supports follow-up questions using previously saved context.
 
 ### Execution Safeguards
@@ -72,7 +70,7 @@ The model decides which tools to request, while the TypeScript application handl
 - File-size, line-range, and search-result limits.
 - Configurable agent step limit (when enabled).
 - Token-usage reporting, including cached input tokens.
-- Read-only repository investigation.
+- READ-ONLY repository investigation.
 
 
 ## How It Works
@@ -93,15 +91,17 @@ Each project can maintain its own conversation history:
 your-project/
 ├── src/
 ├── package.json
-└── tweakedBotChatHistory/
-    └── recent.md
+└── tweakedBotChatHistory/ <--- dont delete this or rename it
+    └── recent.md          <--- dont delete this or rename it
 ```
 
+```
 Recent exchanges are stored in Markdown and can be supplied to future model requests.
 
-History is stored locally rather than relying solely on the API's response chain. This allows context to persist across independent CLI executions.
+History is stored locally 
 
-To manage context size, only a limited portion of recent history is provided. Older exchanges may not remain available indefinitely.
+To manage context size, only a limited portion of recent history is provided (12000 characters of the recent.md starting from the most recent chat). 
+```
 
 # Installation & Setup
 
@@ -190,15 +190,15 @@ Existing `npm link` installations normally use the rebuilt files without requiri
 - [x] Track API token usage.
 - [x] Implement local Markdown conversation history.
 - [x] Automatically save completed exchanges.
-- [ ] add option to increase history context from 12000 lines to a user input value
+- [ ] add option to increase history context from 12000 characters to a user input value
 - [ ] Make conversation History more robust and stable
+- [ ] improve memory management to allow more context and differnt conversations
+- [ ] improve security and guard rails for better scalability
 - [ ] Add automatic history summarization and archival.
 - [ ] Strengthen filesystem security and error recovery.
 - [ ] Improve context retrieval and token efficiency.
+- [ ] add better "alt" input arguments like what personality to use and better pasted in parsing.
 
-## Project Status
-
-Ongoing development focuses on improving memory management, execution reliability, <strong>security</strong>, and overall token efficiency.
 
 ## Notes & Limitations
 
@@ -206,3 +206,7 @@ Ongoing development focuses on improving memory management, execution reliabilit
 - Definitely add `tweakedBotChatHistory/` to the target project's `.gitignore`.
 - Memory is limited to the context of the recent.md file in the tweakedBotChatHistory folder
 - The agent currently uses a low end model, but if you fork or clone feel free to swap the model to a more expensive one with your  openAI 
+
+## KNOWN BUGS
+- currently the agent bugs out if you paste in code that has special characters. i suspect its do to the overly simple input method of adding your question between a pair of quotes (" ").  I am exploring options to fix this such as alt input args and maybe restruction how input is handled to be an object or something less prone to error
+- memory might bug out if the recent.md is deleted, renamed, or moved? ive not tested this but i am putting that here in case i forget
