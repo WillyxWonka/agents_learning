@@ -3,28 +3,18 @@
 A lightweight, CLI-based AI developer assistant built with **TypeScript, Node.js, and the OpenAI <u><a href="https://developers.openai.com/api/reference/responses/overview/">Responses API</a></u>**.
 
 TweakedBot is a reusable, primarily read-only developer assistant that operates within 
-the current project directory.
-
-It uses an iterative agent loop to investigate files, execute permitted tools, and 
-answer questions using retrieved repository information.
-
-The model decides which tools to request, while the TypeScript application handles tool 
+the current project directory. It uses an iterative agent loop to investigate files, execute permitted tools, and answer questions using retrieved repository information.
+The model(<em>default is luna</em>) decides which tools to request, while the TypeScript application handles tool 
 execution, validation, and conversation logging.
 
-**Codebase analysis is read-only.** The application writes local Markdown conversation-
-history files but does not provide general-purpose code modification tools.
-
+**Codebase analysis is read-only.** 
 
 # Inspiration
-```
+
 TweakedBot started with a simple idea: I wanted an AI assistant that could answer quick questions about a project or homework assignment without constantly copying and pasting code into ChatGPT.
-
-I often found myself explaining project structures, sharing entire scripts, and hoping ChatGPT had enough context to answer accurately.
-
-Rather than relying entirely on existing coding assistants, I wanted to build something simpler and focused on understanding code, not just generating it.
+I often found myself explaining project structures, sharing entire scripts, and hoping ChatGPT had enough context to answer accurately. Rather than relying entirely on existing coding assistants, I wanted to build something **simpler** that would hel me understand the code instead of just generating it.
 
 This project is also an opportunity to explore AI agent architecture, tool calling, persistent memory, and practical developer tooling from scratch.
-```
 
 ## Example Output
 ![App screenshot](./images/exampleOutput.png)
@@ -95,13 +85,12 @@ your-project/
     └── recent.md          <--- dont delete this or rename it
 ```
 
-```
 Recent exchanges are stored in Markdown and can be supplied to future model requests.
 
 History is stored locally 
 
-To manage context size, only a limited portion of recent history is provided (12000 characters of the recent.md starting from the most recent chat). 
-```
+To manage context size, only a limited portion of recent history is provided - 12000 characters of the recent.md chat log starting from the most recent chat 
+
 
 # Installation & Setup
 
