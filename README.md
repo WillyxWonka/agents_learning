@@ -177,13 +177,13 @@ tweakedBot "What tests exist in this project?"
 tweakedBot "What were we working on previously?"
 ```
 
-- <strong>Optional Step Limit: </strong>
+-  <del> <strong>Optional Step Limit: </strong>
 
-provide a number after the prompt to override the default execution-step limit of 15
+ <del> provide a number after the prompt to override the default execution-step limit of 15
 
-```bash
-tweakedBot "Review my current Git changes" 5
-```
+
+ <del> tweakedBot "Review my current Git changes" 5
+
 <hr>
 
 # Updating TweakedBot

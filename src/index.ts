@@ -3,6 +3,9 @@ import "dotenv/config";
 import { runAgent } from "./agent.js";
 
 async function main() {
+    /* 
+    process.argv is an array of strings supplied by the shell. The first two entries are normally the Node executable and the script path, so slice(2) keeps only what the user typed. join(" ")
+    */
     const prompt = process.argv.slice(2).join(" ").trim();
 
     if (!prompt) {
