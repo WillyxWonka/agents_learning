@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ALLOWED_HISTORY_FILES = new Set([
-    path.resolve(process.cwd(), "tweakedBotChatHistory/recent.md"),
-     path.resolve(process.cwd(), "tweakedBotChatHistory/long.md")
-]);
+// const ALLOWED_HISTORY_FILES = new Set([
+//     path.resolve(process.cwd(), "tweakedBotChatHistory/recent.md"),
+//     path.resolve(process.cwd(), "tweakedBotChatHistory/long.md")
+// ]);
 /**
  * manually called save file function 
  * @param filePath 
@@ -14,8 +14,6 @@ const ALLOWED_HISTORY_FILES = new Set([
 export function saveHistory(content: string ) {
 
     const fullPath = getHistoryPath();
-    
-    //const fullPath = path.resolve(process.cwd(), filePath);
 
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
     fs.appendFileSync(fullPath, content, "utf8");
@@ -28,22 +26,23 @@ export function getHistoryPath() {
         "recent.md"
     );
 }
+
 /**
  * this function is used to write to the history file, which is used to maintain conversation history between the user and the agent. It is called at the end of the runAgent function to save the final answer and question to the history file.
  * @param filePath 
  * @param content 
  * @returns a string indicating that the history file was successfully written to.
  */
-export function writeHistoryFile( filePath: string, content: string ) {
+// export function writeHistoryFile( filePath: string, content: string ) {
     
-    if (!ALLOWED_HISTORY_FILES.has(filePath)) {
-        throw new Error("Invalid history file path");
-    }
+//     if (!ALLOWED_HISTORY_FILES.has(filePath)) {
+//         throw new Error("Invalid history file path");
+//     }
 
-    const fullPath = path.resolve(process.cwd(), filePath);
+//     const fullPath = path.resolve(process.cwd(), filePath);
 
-    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-    fs.appendFileSync(fullPath, content, "utf8");
+//     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+//     fs.appendFileSync(fullPath, content, "utf8");
 
-    return `Successfully wrote history to ${filePath}`;
-}
+//     return `Successfully wrote history to ${filePath}`;
+// }
