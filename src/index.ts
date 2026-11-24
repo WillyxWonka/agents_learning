@@ -4,7 +4,10 @@ import { runAgent } from "./agent.js";
 
 async function main() {
     /* 
-    process.argv is an array of strings supplied by the shell. The first two entries are normally the Node executable and the script path, so slice(2) keeps only what the user typed. join(" ")
+    process.argv is an array of strings supplied by the shell. The first two entries are normally the 
+    Node executable and the script path, so slice(2) keeps only what the user typed. join(" ")
+    Why do we use slice(2)?
+    Because the first two entries are normally reserved for Node and the script being executed.
     */
     const prompt = process.argv.slice(2).join(" ").trim();
 

@@ -3,6 +3,16 @@ import { getGitDiff } from "./git.js";
 import { writeHistoryFile } from "./chatHistory.js";
 import {z} from "zod";
 
+/*
+For AI agents like your TweakedBot, Zod is especially useful because the arguments an LLM generates are external data, not necessarily trustworthy or correctly formatted data.
+
+Zod actually inspects the values at runtime. <---- IMPORTANT!
+
+otherwise things like JSON.parse() return any in TypeScript, which bypasses normal type checking.
+
+for example: 
+Your code could now believe it has an object that TypeScript believes satisfies ReadFileRangeArgs, even though it doesn't.
+*/
 
 const PathArgs = z.object({
         path: z.string() .min(1)
@@ -17,11 +27,14 @@ const ReadFileRangeArgs = z.object({
         path: z.string() .min(1),
         startLine: z.number() .int() .positive(),
         endLine: z.number() .int() .positive()
-    }).strict();
+    }).strict()
+      .refine(data => data.endLine >= data.startLine, { message: "endLine must be >= startLine" });
+
 const writeHistoryFileArgs = z.object({
         path: z.string() .min(1),
         content: z.string() .min(1),
-    });
+    }).strict()
+    
 export function executeTool( toolName: string, rawArguments: string ) {
 
     const raw = JSON.parse(rawArguments);

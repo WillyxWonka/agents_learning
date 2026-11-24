@@ -17,7 +17,8 @@ const IGNORED_NAMES = new Set([
     ".env",
     ".env.local",
     ".env.development",
-    ".env.production"
+    ".env.production",
+    "tweakedBotChatHistory"
 ]);
 
 const SEARCHABLE_EXTENSIONS = new Set([
@@ -65,9 +66,10 @@ export function listFiles(relativePath: string) {
 }
 
 export function readFile(relativePath: string) {
-
+    
     const fullPath = resolveProjectPath(relativePath);
     const stats = fs.lstatSync(fullPath);
+    
     if (stats.isSymbolicLink()) {
         throw new Error( "Symbolic links are not allowed." );
     }
