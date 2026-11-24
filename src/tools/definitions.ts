@@ -114,32 +114,32 @@ export const tools = [
             additionalProperties: false
         }
     },
-    {
-        type: "function" as const,
-        name: "write_history_file",
-        description: "Writes the user question and final answerto the provided path",
-        strict: true,
+    // {
+    //     type: "function" as const,
+    //     name: "write_history_file",
+    //     description: "Writes the user question and final answerto the provided path",
+    //     strict: true,
 
-        parameters: {
+    //     parameters: {
 
-            type: "object",
-            properties: {
+    //         type: "object",
+    //         properties: {
 
-                path: {
-                    type: "string",
-                    description: "history.txt folder and file path"
-                },
-                content: {
-                    type: "string",
-                    description: "final answer from agent and the users question"
-                },
-            },
-            required: [
-                "path",
-                "content",
-            ],
+    //             path: {
+    //                 type: "string",
+    //                 description: "history.txt folder and file path"
+    //             },
+    //             content: {
+    //                 type: "string",
+    //                 description: "final answer from agent and the users question"
+    //             },
+    //         },
+    //         required: [
+    //             "path",
+    //             "content",
+    //         ],
 
-            additionalProperties: false
-        }
-    }
+    //         additionalProperties: false
+    //     }
+    // }
 ];
