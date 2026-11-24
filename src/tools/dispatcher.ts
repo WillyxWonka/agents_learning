@@ -27,7 +27,9 @@ const ReadFileRangeArgs = z.object({
         path: z.string() .min(1),
         startLine: z.number() .int() .positive(),
         endLine: z.number() .int() .positive()
-    }).strict();
+    }).strict()
+      .refine(data => data.endLine >= data.startLine, { message: "endLine must be >= startLine" });
+
 // const writeHistoryFileArgs = z.object({
 //         path: z.string() .min(1),
 //         content: z.string() .min(1),
